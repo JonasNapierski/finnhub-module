@@ -2,7 +2,13 @@ import requests
 import re
 import time
 import datetime
-token="c0vbedv48v6pqdk9dprg"
+import json
+
+with open("modules/finnhub-module/module.json", "r") as f:
+    json_ = json.loads(f.read())
+
+
+token= json_['api_token']
 regex = r".*[von]\s"
 
 def exec(msg):
