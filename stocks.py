@@ -1,7 +1,6 @@
 import requests
 import re
 import json
-import time
 
 currency_symbol = {
     "EUR" : "€",
