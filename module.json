@@ -1,10 +1,32 @@
 {
     "main": "stocks",
+    "author": "Leif Jahnel",
     "api_token": " api_token",
     "description": "A Simple Webscraper for Lang und Schwarz",
-    "examples": [
-        "wie stehen die aktien von",
-        "wie ist der kurs von",
-        "bei wie viel liegt die aktie von"
+    "currency": "EUR",
+    "commands": [
+        {
+            "command-name": "stockprice",
+            "language": "DE",
+            "examples": [
+                "Wie stehen die Aktien von GameStop",
+                "Wie ist der Kurs von VW",
+                "Bei wie viel liegt die Aktie von "
+            ]
+        },
+        {
+            "command-name": "watchlist",
+            "language": "DE",
+            "examples": [
+              "Zeig mir meine Aktienwatchlist",
+              "Wie viel sind die Aktien in meiner Watchlist wert",
+              "Bei wie viel liegt die Aktienwatchlist"
+            ]
+          }
+    ],
+    "watchlist": [
+        "GME",
+        "HLAGF",
+        "NVDA"
     ]
 }

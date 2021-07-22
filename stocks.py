@@ -1,30 +1,55 @@
 import requests
 import re
-import time
-import datetime
 import json
+import time
 
-with open("modules/finnhub-module/module.json", "r") as f:
-    json_ = json.loads(f.read())
+currency_symbol = {
+    "EUR" : "€",
+    "USD" : "$"
+}
 
+def currency_conversion(headers, your_currency="EUR"):
+        url_currency = f'https://finnhub.io/api/v1/forex/rates?base=USD'
+        data = requests.get(url_currency, headers= headers).json()
+        conversion = data['quote'][your_currency]
+        print(conversion)
+        return conversion
 
-token= json_['api_token']
-regex = r".*[von]\s"
+def get_stock_symbol(name, headers):
+        url_names = f'https://finnhub.io/api/v1/search?q={name}'
+        r = requests.get(url_names, headers=headers).json()
+        symbol = r['result'][0]['symbol']
+        print(info)
+        return symbol
 
-def exec(msg):
-    
+def get_stock_price(symbol, headers, your_currency):
+        url_prices = f'https://finnhub.io/api/v1/quote?symbol={symbol}'
+        res = requests.get(url_prices, headers= headers).json()
+        print(res)
+        price = res['c'] * currency_conversion(headers, your_currency)
+        return price
+
+def exec(msg, user, predicted_cmd):
+
+    cfg = user.get_module_config("finnhub-module")
+    your_currency = cfg['currency']
+    headers = {'X-Finnhub-Token': cfg['api_token']}
+    regex = r".*[von]\s"
     name = re.sub(regex, "", msg)
-    r = requests.get(f'https://finnhub.io/api/v1/search?q={name}&token='+token).json()
-    info = r['result'][0]
-    
-    ctime = int(time.time() - 900)
 
 
-    res = requests.get(f'https://finnhub.io/api/v1/stock/candle?symbol={info["symbol"]}&resolution=D&from={ctime}&to={ctime+900}&token='+token).json()
-    #res = (finnhub_client.stock_tick(info['symbol'], '2021-03-02', 2, 0))
-    price = res['c'][0] * 0.826972742
-    
-    return { "price": price, "msg": f"Die Aktie {name} steht zur Zeit bei einem Kurs von {price:.3f}€"} 
+    if predicted_cmd == "stockprice":
+        symbol = get_stock_symbol(name, headers)
+        price = get_stock_price(symbol, headers, your_currency)
+        return {"cod": 200, "price": price, "msg": f"Die Aktie {name} steht zur Zeit bei einem Kurs von {price:.2f}{currency_symbol[your_currency]}."}
 
-def init():
-    print("Heyho")
+    elif predicted_cmd == "watchlist":
+        watchlist_prices = ""
+        for i in cfg['watchlist']:
+            symbol = i
+            print(symbol)
+            price = get_stock_price(symbol, headers, your_currency)
+            watchlist_prices = f"{watchlist_prices} {symbol}:{price:.2f}{currency_symbol[your_currency]}"
+        return {"cod": 200, "msg": f"{watchlist_prices}"}
+    else:
+        return {"cod":500, "msg": "Ich weiß nicht was du meinst."}
